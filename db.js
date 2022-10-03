@@ -1,12 +1,13 @@
 const { Client } = require('pg')
+const dotenv = require('dotenv')
 
 // Connection to the database
 const client = new Client({
-    host : 'localhost',
-    user: 'postgres',
-    password: 'anthonyJ5',
-    database: 'postgres',
-    post: 5432
+    host : process.env.host,
+    user: process.env.user,
+    password: process.env.password + "",
+    database: process.env.database,
+    post: process.env.post
 })
 
 // return to the console state of database
