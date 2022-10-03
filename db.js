@@ -13,8 +13,27 @@ const client = new Client({
 // return to the console state of database
 client.connect((err, db) => {
     if (err) {
-        console.log(`🔴 Connection error`) 
+        console.log(`🔴 Connection error ${err}`) 
         return
     } 
     console.log(`🟢 Connected to database`)
 })
+
+// const createNewAccount = () => {
+//     client.query(`insert into account values ( 1, 'abc', 100 )`, (err, res) => {
+//         if(err) console.log(`🔴 User cannot be created`)
+//         else console.log(`🟢 User created`)
+//     })
+// }
+
+// createNewAccount()
+
+// const withdraw = () => {
+
+// }
+// const deposit = () => {
+
+// }
+// const transfer = () => {
+
+// }
