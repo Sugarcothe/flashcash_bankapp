@@ -1,4 +1,3 @@
-const { Console } = require("console")
 const readline = require("readline")
 const rl = readline.createInterface({
     input: process.stdin,
@@ -13,13 +12,11 @@ console.log('n\ 4. Check Balance')
 console.log('n\ 5. Transfer Money')
 console.log('n\ 6. Exit')
 
-const ip = () => {
-    return new Promise((resolve, reject) => {
-        rl.question('n\ What transaction are you performing? ', (ch) => {
-            resolve(ch)
-        })
+const ip = () => new Promise((resolve, reject) => {
+    rl.question('n\ What transaction are you performing? ', (ch) => {
+        resolve(ch)
     })
-}
+})
 
 const start = async () => {
     while(true) {
