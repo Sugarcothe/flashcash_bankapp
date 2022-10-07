@@ -1,4 +1,10 @@
 const readline = require("readline")
+const { createNewAccount,
+    withdraw,
+    deposit,
+    transfer,
+    updateBalance
+} = require("./db")
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -19,27 +25,27 @@ const ip = () => new Promise((resolve, reject) => {
 })
 
 const start = async () => {
-    while(true) {
+    while (true) {
         const choice = await ip()
         if (choice == 1) {
             console.log(`🟢 Create account`)
         }
-        else if (choice == 2){
+        else if (choice == 2) {
             console.log(`🟢 Deposit Money`)
         }
-        else if (choice == 3){
+        else if (choice == 3) {
             console.log(`🟢 Withdraw Money`)
         }
-        else if (choice == 4){
+        else if (choice == 4) {
             console.log(`🟢 Check Balance`)
         }
-        else if (choice == 5){
+        else if (choice == 5) {
             console.log(`🟢 Trasnfer Money`)
         }
-         else {
+        else {
             console.log(`🟢 Thanks for banking with us`)
             process.exit()
-         }
+        }
     }
 }
 

@@ -23,7 +23,7 @@ const createNewAccount = ({ acId, acNm, balance }) => {
     client.query(`insert into account values ($1, $2, $3)`, [acId, acNm, balance], (err, res) => {
         if (err) console.log(`🔴 User cannot be created, another user already has ${acId} as their ID`)
         else {
-            console.log(`🟢 ${acNm}, your account is created`)
+            console.log(`🟢 ${acNm}, Your account is created`)
             // console.log(res)
         }
     })
@@ -32,22 +32,69 @@ const createNewAccount = ({ acId, acNm, balance }) => {
 
 const withdraw = ({ acId, amount }) => {
     client.query(`Select balance from the account where acId = $1`, [acId], (err, res) => {
-        const { balance } = parseFloat(res.rows[0].balance)
-        console.log(`Your existing balance is ${balance}`)
+        if (err) {
+            console.log(`🔴 Cannot Withdraw ${amount}`)
+        } else {
+            const { balance } = parseFloat(res.rows[0].balance)
+            console.log(`Your existing balance is ${balance}`)
 
-        const newBalance = balance - amount
+            const newBalance = balance - amount
 
-        client.query(`Update account set balance = $2 where acId = $2`, [newBalance, acId], (err, res) => {
-            if (err) console.log(`🔴 Cannot withdraw ${amount}, because ${err}`)
-            else console.log(`🟢 Successfully withdrawn ${amount}`)
-        })
+            client.query(`Update account set balance = $2 where acId = $2`, [newBalance, acId], (err, res) => {
+                if (err) console.log(`🔴 Cannot withdraw ${amount}, because ${err}`)
+                else console.log(`🟢 Successfully withdrawn ${amount}`)
+            })
+        }
     })
 }
-withdraw({ acId: 1, amount: 0 })
+// withdraw({ acId: 1, amount: 0 })
 
-// const deposit = () => {
+const deposit = ({ acId, amount }) => {
+    client.query(`Select balance from the account where acId = $1`, [acId], (err, res) => {
+        if (err) {
+            console.log(`🔴 Cannot deposit ${amount}`)
+        } else {
+            const { balance } = parseFloat(res.rows[0].balance)
+            console.log(`Your existing balance is ${balance}`)
 
-// }
-// const transfer = () => {
+            const newBalance = balance + amount
 
-// }
+            client.query(`Update account set balance = $2 where acId = $2`, [newBalance, acId], (err, res) => {
+                if (err) console.log(`🔴 Cannot deposit ${amount}, because ${err}`)
+                else console.log(`🟢 Successfully Deeposited ${amount}`)
+            })
+        }
+
+    })
+}
+
+// deposit({acId: 1, amount: 100})
+
+const transfer = ({ srcId, destId, balance }) => {
+    withdrawn({ acId: srcId, amount })
+
+    deposit({ acId: destId, amount })
+}
+
+// transfer({ srcId: 2, destId: 1, amount: 10})
+const updateBalance = ({ acId, amount }) => {
+    client.query(`Select balance from the account where acId = $1`, [acId], (err, res) => {
+        if (err) {
+            console.log(`🔴 Cannot fetch your balance`)
+        } else {
+            const balance = parseFloat(res.rows[0].balance)
+            console.log(`${acNm}, Your balance is ${balance}`)
+        }
+
+    })
+}
+
+updateBalance({ acId: 1, amount: balance })
+
+module.exports = {
+    createNewAccount,
+    withdraw,
+    deposit,
+    transfer,
+    updateBalance
+}
