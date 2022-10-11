@@ -76,7 +76,7 @@ const transfer = ({ srcId, destId, balance }) => {
     deposit({ acId: destId, amount })
 }
 
-// transfer({ srcId: 2, destId: 1, amount: 10})
+// balance({ srcId: 2, destId: 1, amount: 10})
 const updateBalance = ({ acId, amount }) => {
     client.query(`Select balance from the account where acId = $1`, [acId], (err, res) => {
         if (err) {
