@@ -4,7 +4,7 @@ const {
   withdraw,
   deposit,
   transfer,
-  updateBalance,
+  balance,
 } = require("./db");
 const rl = readline.createInterface({
   input: process.stdin,

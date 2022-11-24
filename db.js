@@ -1,107 +1,126 @@
 const { Client } = require("pg");
-const dotenv = require("dotenv");
+const dotenv = require('dotenv')
+dotenv.config()
 
-// Connection to the database
 const client = new Client({
-  host: "localhost",
-  user: "postgres",
-  password: "anthonyJ5",
-  database: "postgres",
-  port: "5432",
+  host: process.env.host,
+  user: process.env.user,
+  password: process.env.password,
+  database: process.env.database,
+  post: process.env.post,
 });
 
-// return to the console state of database
-client.connect((err, db) => {
+client.connect((err) => {
   if (err) {
-    console.log(`🔴 Connection error ${err}`);
+    console.log(`❌ Error In Connectivity`);
     return;
   }
-  console.log(`🟢 Connected to database`);
+  console.log(`\n ✅ Connected Successfully`);
 });
 
-const createNewAccount = ({ acId, acNm, balance }) => {
+const createNewAccount = ({ acId, acNm, balance }, onCreate = undefined) => {
   client.query(
     `insert into account values ($1, $2, $3)`,
     [acId, acNm, balance],
     (err, res) => {
-      if (err)
-        console.log(
-          `🔴 User cannot be created, another user already has ${acId} as their ID`
-        );
+      if (err) console.log(`\n ❌ Problem In Creating the Customer`);
       else {
-        console.log(`🟢 ${acNm}, Your account is created`);
-        // console.log(res)
+        console.log(`\n ✅ New Customer Created Successfully`);
+        if (onCreate) onCreate(`✅ New Customer Created Successfully`);
       }
     }
   );
 };
-createNewAccount({ acId: 7, acNm: "chuks", balance: 40});
 
-const withdraw = ({ acId, amount }) => {
-    client.query(`Select balance from the account where acId = $1`, [acId], (err, res) => {
-        if (err) {
-            console.log(`🔴 Cannot Withdraw ${amount}`)
-        } else {
-            const { balance } = res.rows[0]
-            console.log(`🟢 Your existing balance is ${balance}`);
+const withdraw = ({ acId, amount }, onWithdraw = undefined) => {
+  client.query(
+    `select balance from account where ac_id = $1`,
+    [acId],
+    (err, res) => {
+      if (err) {
+        console.log(`\n ❌ Problem In Withdrawing`);
+      } else {
+        const balance = parseFloat(res.rows[0].balance);
 
-            const newBalance = balance - amount
+        const newBalance = balance - parseFloat(amount);
 
-            client.query(`Update account set balance = $2 where acId = $2`, [newBalance, acId], (err, res) => {
-                if (err) console.log(`🔴 Cannot withdraw ${amount}, because ${err}`)
-                else console.log(`🟢 Successfully withdrawn ${amount}`)
-            })
-        }
-    })
-}
-// withdraw({ acId: 1, amount: 10 })
+        client.query(
+          `update account set balance = $1 where ac_id = $2`,
+          [newBalance, acId],
+          (err, res) => {
+            if (err) console.log(`\n ❌ Problem In Withdrawing`);
+            else {
+              console.log(`\n ✅ Amount ${amount} Withdrawal Successfully`);
+              if (onWithdraw)
+                onWithdraw(`✅ Amount ${amount} Withdraw Successfully`);
+            }
+          }
+        );
+      }
+    }
+  );
+};
 
-const deposit = ({ acId, amount }) => {
-    client.query(`Select balance from the account where acId = $1`, [acId], (err, res) => {
-        if (err) {
-            console.log(`🔴 Cannot deposit ${amount}`)
-        } else {
-            const { balance } = parseFloat(res.rows[0].balance)
-            console.log(`🟢 Your existing balance is ${balance}`);
+const deposit = ({ acId, amount }, onDeposit = undefined) => {
+  client.query(
+    `select balance from account where ac_id = $1`,
+    [acId],
+    (err, res) => {
+      if (err) {
+        console.log(`\n ❌ Problem In Deposit`);
+      } else {
+        const balance = parseFloat(res.rows[0].balance);
+        const newBalance = balance + parseFloat(amount);
 
-            const newBalance = balance + amount
+        client.query(
+          `update account set balance = $1 where ac_id = $2`,
+          [newBalance, acId],
+          (err, res) => {
+            if (err) console.log(`\n ❌ Problem In Depositing`);
+            else {
+              console.log(`\n ✅ Amount ${amount} Deposited Successfully`);
 
-            client.query(`Update account set balance = $2 where acId = $2`, [newBalance, acId], (err, res) => {
-                if (err) console.log(`🔴 Cannot deposit ${amount}, because ${err}`)
-                else console.log(`🟢 Successfully Deeposited ${amount}`)
-            })
-        }
+              if (onDeposit)
+                onDeposit(`✅ Amount ${amount} Deposited Successfully`);
+            }
+          }
+        );
+      }
+    }
+  );
+};
 
-    })
-}
+const transfer = ({ srcId, destId, amount }, onTransfer = undefined) => {
+  withdraw({ acId: srcId, amount }, (msgWd) => {
+    deposit({ acId: destId, amount }, (msgDp) => {
+      if (onTransfer)
+        onTransfer(`✅ Amount ${amount} Transferred Successfully`);
+    });
+  });
+};
 
-// deposit({acId: 1, amount: 100})
-
-const transfer = ({ srcId, destId, balance }) => {
-    withdrawn({ acId: srcId, amount })
-
-    deposit({ acId: destId, amount })
-}
-
-// balance({ srcId: 2, destId: 1, amount: 10})
-const updateBalance = ({ acId, amount }) => {
-    client.query(`Select balance from the account where acId = $1`, [acId], (err, res) => {
-        if (err) {
-            console.log(`🔴 Cannot fetch your balance`)
-        } else {
-            const balance = parseFloat(res.rows[0].balance)
-            console.log(`🟢 ${acNm}, Your balance is ${balance}`);
-        }
-
-    })
-}
-
-// updateBalance({ acId: 1, amount: balance })
+const balance = (acId, onBalance = undefined) => {
+  console.log(acId);
+  client.query(
+    `select balance from account where ac_id = $1`,
+    [acId],
+    (err, res) => {
+      if (err) {
+        console.log(`\n ❌ Problem In Fetching the balance`);
+        console.log(err);
+      } else {
+        const balance = parseFloat(res.rows[0].balance);
+        console.log(`\n 💰 Your Account Balance Is : ${balance}`);
+        if (onBalance) onBalance(balance);
+      }
+    }
+  );
+};
 
 module.exports = {
-    createNewAccount,
-    withdraw,
-    deposit,
-    transfer,
-    updateBalance
-}
+  createNewAccount,
+  deposit,
+  withdraw,
+  transfer,
+  balance,
+};
